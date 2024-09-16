@@ -1,0 +1,63 @@
+&run_setup
+		lattice = EPAC_AF_SPECT_V2.lte
+		default_order = 2
+		use_beamline = AF5mCOL
+		p_central_mev = 1000
+		sigma = %s.sig
+		random_number_seed=123456789
+		print_statistics=1
+&end
+
+&run_control
+		n_steps = 1
+&end
+
+!# name of IP bunch filename
+&alter_elements
+		name = W2
+		item = FILENAME
+		string_value = "temp_IP.sdds"
+&end
+
+!# assign charge to bunch
+&alter_elements
+		name = QBUNCH
+		item = TOTAL
+		value = <qbunch>
+&end
+
+!# these are used as the optimisation variables
+&alter_elements
+		name = Q1
+		item = K1
+		value = <Q1K1>
+&end
+
+&alter_elements
+		name = Q2
+		item = K1
+		value = <Q2K1>
+&end
+
+&alter_elements
+		name = Q3
+		item = K1
+		value = <Q3K1>
+&end
+
+&twiss_output
+!		filename = track_files/simple/%s.twi
+		output_at_each_step = 1
+		matched = 0
+		statistics = 1
+		beta_x = 0.005, alpha_x = 0
+		beta_y = 0.005, alpha_y = 0
+&end
+
+&sdds_beam
+		input = <beam>
+		input_type = "elegant"
+&end
+
+&track &end
+

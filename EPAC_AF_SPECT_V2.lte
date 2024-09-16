@@ -1,0 +1,170 @@
+#--------------------------------------#
+#           Joe Crone                  #
+#          15/03/2022                  #
+#       EPAC_1GeV_Spectrometer_AF      #
+#--------------------------------------#
+#
+# 1 GeV Lattice for EPAC Spectrometer designed by Bruno Muratori.
+# Aims to capture LWFA 1 GeV electron beam and transport downstream to vertical focus @ spectrometer
+# 
+# Two Sections: capture, focus
+# capture is a 4 magnet Hallbach array to catch the high divergence beam 
+#
+# Magnets are high field PMQ Hallbach magnets 
+# ApertureRadius=4mm; Length=5mm
+
+# CHARGE
+QBUNCH: CHARGE, total = 0
+# BPM
+BPM: MONI
+
+# MARKER
+M1: MARK, FITPOINT=1
+
+# WATCH W1 
+W1:    watch, filename="watch_files/%s-%03ld.w1", DISABLE=1 
+W2:    watch, filename="temp_IP.w2"
+
+# MALIGN AND TWISS FOR ERROR ANALYSIS - NEEDS TESTING SINCE MAY AFFECT INITIAL VALS
+malign: MALIGN
+# MUST GIVE TWISS ELEMENT THE TWISS PARAMETERS AT THAT LOCATION, OTHERWISE IT SELECTS DEFAULTS + MESSES THINGS UP
+twiss: TWISS,BETAX=0.005,BETAY=0.005,ALPHAX=0,ALPHAY=0,ETAX=0,ETAY=0,ETAXP=0,ETAYP=0
+
+# DRIFTS
+% 0.05 sto drlen
+% 0.05 sto quadlen
+% 0.2 sto triplen
+
+# drifts from PMQs to EMQs w/ 4 PMQs
+
+dpmq2c1: edrift, L=0.4
+dpmq2c1bpm: edrift, L=0.2
+dc12emq: edrift, L=0.15
+dc12emqbpm: edrift, L=0.075
+
+# drifts from EMQs to IP
+demq2c2: edrift, L=0.15
+demq2c2bpm: edrift, L=0.075 
+dc22ip3: edrift, L=0.35
+dc22ip3bpm: edrift, L=0.175
+dc22ip5: edrift, L=2.35
+dc22ip5bpm: edrift, L=1.175
+dc22ip10: edrift, L=7.35
+dc22ip15: edrift, L=12.35
+
+# PMQ drifts
+drs1:   edrift, L="drlen"
+dr:     edrift, L="drlen"
+drbpm:  edrift, L="drlen 2 /"
+
+# EMQ triplet separation 
+dtrip: edrift, L="triplen"
+dtripbpm: edrift, L="triplen 2 /"
+
+# Spectrometer On/Off drifts
+d2spec: edrift, L=0.55
+
+dspec: edrift, L=1.1
+dspecscr: edrift, L=0.2
+
+dspecoff: edrift, L=2.8 
+
+ddipole: edrift, L=0.75
+
+# distance for correcting the x' and y'
+dcorprime: edrift, L=1
+
+# COLLIMATORS
+PMQCOL:    ECOL, L=0, X_MAX=4E-3, Y_MAX=4E-3
+EMQCOL:    ECOL, L=0, X_MAX=20E-3, Y_MAX=20E-3
+# potentially adjust EMQ collimator to be slightly smaller
+SPECTCOL:  RCOL, L=0, X_MAX=7.5E-3, Y_MAX=100E-3, DY=-80E-3
+
+SLIT:	RCOL, L=0, X_MAX=7.5E-3, Y_MAX=1E-3 
+
+# QUADRUPOLES
+% 0.2 sto EMQlen 
+% 150 sto hqf
+% -150 sto hqd
+% 50 sto pqf
+% -50 sto pqd
+
+# PMQs
+hquadf1:   kquad, L="quadlen", k1="hqf"
+hquadf2:   kquad, L="quadlen", k1="hqf"
+hquadf3:   kquad, L="quadlen", k1="hqf"
+hquadf4:   kquad, L="quadlen", k1="hqf"
+hquadf5:   kquad, L="quadlen", k1="hqf"
+
+hquadd1:   kquad, L="quadlen", k1="hqd"
+hquadd2:   kquad, L="quadlen", k1="hqd"
+hquadd3:   kquad, L="quadlen", k1="hqd"
+hquadd4:   kquad, L="quadlen", k1="hqd"
+hquadd5:   kquad, L="quadlen", k1="hqd"
+
+!# EMQs AF 3m (STANDARD)
+!Q1:	quad, L="EMQlen", k1= 9.999999999999998
+!Q2:	quad, L="EMQlen", k1= -0.1981696756463964
+!Q3:	quad, L="EMQlen", k1= -9.999999769625282
+
+!# EMQs AF 5m (HIGH-BRIGHTNESS)
+!Q1:	quad, L="EMQlen", k1= 7.346730993433913
+!Q2:	quad, L="EMQlen", k1= 2.29233339226338
+!Q3:	quad, L="EMQlen", k1= -6.669619360805036
+
+!# EMQs AF 5m (Beam Irradiation - JS beam)
+Q1: quad, L="EMQlen", k1= 5.66938513
+Q2: quad, L="EMQlen", k1= 4.21503828
+Q3: quad, L="EMQlen", k1= -6.92368293
+
+# SPECTROMETER DIPOLES
+B1: rben, L=0.75, TILT=1.570796327, ANGLE=0.0634, DY=-80E-3
+B2: rben, L=0.75, TILT=-1.570796327, ANGLE=-0.0634, DY=-80E-3
+
+# CORRECTORS
+% 0.15 sto kicklen
+
+C1: ekicker, L="kicklen", HKICK=0, VKICK=0
+C2: ekicker, L="kicklen", HKICK=0, VKICK=0
+
+# INTERMEDIARIES
+
+ffagunit1: line = (hquadf1, W1, drbpm, BPM, drbpm, hquadd1, W1, drbpm, BPM, drbpm)
+ffagunit2: line = (hquadf2, W1, drbpm, BPM, drbpm, hquadd2, W1, drbpm, BPM, drbpm)
+ffagunit3: line = (hquadf3, W1, drbpm, BPM, drbpm, hquadd3, W1, drbpm, BPM, drbpm)
+ffagunit4: line = (hquadf4, W1, drbpm, BPM, drbpm, hquadd4, W1, drbpm, BPM, drbpm)
+ffagunit5: line = (hquadf5, W1, drbpm, BPM, drbpm, hquadd5, W1, drbpm, BPM, drbpm)
+
+tripunit: line = (Q1, W1, dtripbpm, BPM, dtripbpm, Q2, W1, dtripbpm, BPM, dtripbpm, Q3, W1, dtripbpm, BPM, dtripbpm)
+
+spec: line = (B1, dspec, B2, dspecscr)
+
+# INTERMEDIARIES (COLLIMATION)
+
+ffagunit1col: line = (PMQCOL, hquadf1, W1, drbpm, BPM, drbpm, PMQCOL, hquadd1, W1, drbpm, BPM, drbpm)
+ffagunit2col: line = (PMQCOL, hquadf2, W1, drbpm, BPM, drbpm, PMQCOL, hquadd2, W1, drbpm, BPM, drbpm)
+ffagunit3col: line = (PMQCOL, hquadf3, W1, drbpm, BPM, drbpm, PMQCOL, hquadd3, W1, drbpm, BPM, drbpm)
+ffagunit4col: line = (PMQCOL, hquadf4, W1, drbpm, BPM, drbpm, PMQCOL, hquadd4, W1, drbpm, BPM, drbpm)
+ffagunit5col: line = (PMQCOL, hquadf5, W1, drbpm, BPM, drbpm, PMQCOL, hquadd5, W1, drbpm, BPM, drbpm)
+
+tripunitcol: line = (EMQCOL, Q1, W1, dtripbpm, BPM, dtripbpm, EMQCOL, Q2, W1, dtripbpm, BPM, dtripbpm, EMQCOL, Q3, W1, dtripbpm, BPM, dtripbpm)
+
+speccolspecoff: line = (SPECTCOL, ddipole, dspec, SPECTCOL, ddipole, dspecscr)
+speccol: line = (SPECTCOL, B1, dspec, SPECTCOL, B2, dspecscr)
+specslit: line = (SPECTCOL, B1, dspec, SPECTCOL, B2, SLIT, dspecscr)
+
+# BEAMLINES
+# Careful with IP distance and splitting of length
+AF3m: line = (MALIGN, TWISS, W1, drs1, ffagunit1, ffagunit2, dpmq2c1bpm, BPM, dpmq2c1bpm, c1, W1, dc12emqbpm, BPM, dc12emqbpm, tripunit, demq2c2bpm, BPM, demq2c2bpm, c2, W1, dc22ip3bpm, BPM, dc22ip3bpm, M1, W1)
+
+AF5m: line = (QBUNCH, MALIGN, TWISS, W1, drs1, ffagunit1, ffagunit2, dpmq2c1bpm, BPM, dpmq2c1bpm, c1, W1, dc12emqbpm, BPM, dc12emqbpm, tripunit, demq2c2bpm, BPM, demq2c2bpm, c2, W1, dc22ip5bpm, BPM, dc22ip5bpm, M1, W1, BPM)
+
+PMQarray: line = (QBUNCH, MALIGN, TWISS, W1, drs1, ffagunit1, ffagunit2, ffagunit3, ffagunit4, ffagunit5, M1, W1, BPM)
+
+# BEAMLINES (COLLIMATION)
+
+AF3mCOL: line = (MALIGN, TWISS, W1, drs1, ffagunit1col, ffagunit2col, dpmq2c1bpm, BPM, dpmq2c1bpm, c1, W1, dc12emqbpm, BPM, dc12emqbpm, tripunitcol, demq2c2bpm, BPM, demq2c2bpm, c2, W1, dc22ip3bpm, BPM, dc22ip3bpm, M1, W1)
+
+PMQarrayCOL: line = (QBUNCH, MALIGN, TWISS, W1, drs1, ffagunit1col, ffagunit2col, ffagunit3col, ffagunit4col, ffagunit5col, M1, W1)
+
+AF5mCOL: line = (QBUNCH, MALIGN, TWISS, W1, drs1, ffagunit1col, ffagunit2col, dpmq2c1bpm, BPM, dpmq2c1bpm, c1, W1, dc12emqbpm, BPM, dc12emqbpm, tripunitcol, demq2c2bpm, BPM, demq2c2bpm, c2, W1, dc22ip5bpm, BPM, dc22ip5bpm, M1, W1, BPM, W2)
